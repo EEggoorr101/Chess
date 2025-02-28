@@ -43,3 +43,61 @@ class Button:
             return True
         return False
 
+class Tile:
+    def __init__(self, coord, side, color):
+        self.coordinates = coord
+        self.l = side
+        self.c = color
+        self.occupied = False
+        self.piece = False
+
+    def is_in(self):
+        pos = [pr.get_mouse_x(), pr.get_mouse_y()]
+        return self.coordinates[0] <= pos[0] <= self.coordinates[0] + self.l and self.coordinates[1] <= pos[1] <= self.coordinates[1] + self.l
+
+    def draw(self):
+        pr.draw_rectangle(self.coordinates[0], self.coordinates[1], self.l, self.l, self.c)
+        if (self.occupied):
+            self.piece.draw()
+        if (self.is_in()):
+            pr.draw_rectangle(self.coordinates[0], self.coordinates[1], self.l, self.l, (0,0,0,70))
+
+    def step(self):
+        if (self.is_in()):
+            if (pr.is_mouse_button_pressed(0)):
+                self.chosen=True
+            return True
+        return False
+
+class Board:
+    def __init__(self,coord,side,color1,color2):
+        self.coordinate = coord
+        self.l = side//8
+        self.c1 = color1
+        self.c2 = color2
+        self.tiles = []
+        self.chosen = False
+        for i in range(8):
+            row = []
+            for j in range(8):
+                if ((i+j)%2==0):
+                    row.append(Tile([self.coordinate[0]+i*self.l,self.coordinate[1]+j*self.l],self.l,self.c1))
+                else:
+                    row.append(Tile([self.coordinate[0] + i * self.l, self.coordinate[1] + j * self.l], self.l, self.c2))
+            self.tiles.append(row.copy())
+
+    def draw(self):
+        for i in range(8):
+            for j in range(8):
+                self.tiles[i][j].draw()
+        if (self.chosen != False):
+            pr.draw_rectangle(self.tiles[self.chosen[0]][self.chosen[1]].coordinates[0], self.tiles[self.chosen[0]][self.chosen[1]].coordinates[1], self.l, self.l, (255,255,0,100))
+
+    def step(self):
+        event = pr.is_mouse_button_pressed(0)
+        if (event):
+            self.chosen = False
+        for i in range(8):
+            for j in range(8):
+                if (self.tiles[i][j].step() and event):
+                    self.chosen = [i, j]
