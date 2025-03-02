@@ -34,14 +34,13 @@ class Game():
     def __init__(self):
         self.board = Board([50,50],1400,raylib.WHITE,raylib.BROWN, 8)
         self.exit_b = Button([1550, 1100], 600, 200, raylib.BLACK, 'Menu', raylib.GRAY, raylib.WHITE, raylib.WHITE, raylib.WHITE, 100, raylib.BLACK)
+        self.players = []
 
     def act(self):
-        self.board.turn_board()
         pr.begin_drawing()
         self.draw()
         pr.end_drawing()
         scene = self.step()
-        self.board.turn_board()
         return scene
 
     def draw(self):

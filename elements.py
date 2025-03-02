@@ -50,6 +50,96 @@ class Line:
         self.d1 = dir1
         self.d2 = dir2
         self.l = len
+        self.cl = Capture_Line(dir1,dir2,len)
+        self.fl = Free_Line(dir1, dir2, len)
+
+    def draw(self, i, j, board):
+        self.cl.draw(i, j, board)
+        self.fl.draw(i, j, board)
+
+    def step(self,i,j, board):
+        board = self.cl.step(i, j, board)
+        board = self.fl.step(i, j, board)
+        return board
+
+class Capture_Line:
+    def __init__(self, dir1, dir2, len):
+        self.d1 = dir1
+        self.d2 = dir2
+        self.l = len
+
+    def draw(self, i, j, board):
+        if (self.l == 0):
+            while True:
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True):
+                        pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED)
+                        break
+                    else:
+                        continue
+                except:
+                    break
+        else:
+            for q in range(self.l):
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True):
+                        pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED)
+                        break
+                    else:
+                        continue
+                except:
+                    break
+
+    def step(self, i, j, board):
+        if (self.l == 0):
+            while True:
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j] = t
+                        break
+                    else:
+                        continue
+                except:
+                    break
+        else:
+            for q in range(self.l):
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j] = t
+                        break
+                    else:
+                        continue
+                except:
+                    break
+        return board
+
+class Free_Line:
+    def __init__(self, dir1, dir2, len):
+        self.d1 = dir1
+        self.d2 = dir2
+        self.l = len
 
     def draw(self, i, j, board):
         if (self.l == 0):
@@ -78,22 +168,55 @@ class Line:
                     break
 
     def step(self,i,j, board):
-        while True:
-            i += self.d1
-            j += self.d2
-            try:
-                t = board[i][j]
-                if (t.occupied == True or i<0 or j<0):
+        if (self.l == 0):
+            while True:
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (t.occupied == True or i<0 or j<0):
+                        break
+                    else:
+                        t.possible = True
+                        board[i][j] = t
+                except:
                     break
-                else:
-                    t.possible = True
-                    board[i][j] = t
-            except:
-                break
+        else:
+            for q in range(self.l):
+                i += self.d1
+                j += self.d2
+                try:
+                    t = board[i][j]
+                    if (t.occupied == True or i<0 or j<0):
+                        break
+                    else:
+                        t.possible = True
+                        board[i][j] = t
+                except:
+                    break
         return board
 
-class Knight:
+
+class Jump:
     #0,1,2,3 - directions (0 - up, else clockwise); 0-both, -1,1 only one(-1, left; 1, right); len1 - distance of jump, len2
+    def __init__(self, dir1, dir2, len1, len2):
+        self.d1 = dir1
+        self.d2 = dir2
+        self.l1 = len1
+        self.l2 = len2
+        self.cj = Capture_Jump(dir1, dir2, len1, len2)
+        self.fj = Free_Jump(dir1, dir2, len1, len2)
+
+    def draw(self, i, j, board):
+        self.cj.draw(i, j, board)
+        self.fj.draw(i, j, board)
+
+    def step(self, i, j, board):
+        board = self.cj.step(i, j, board)
+        board = self.fj.step(i, j, board)
+        return board
+
+class Capture_Jump:
     def __init__(self, dir1, dir2, len1, len2):
         self.d1 = dir1
         self.d2 = dir2
@@ -106,14 +229,204 @@ class Knight:
                 if (self.d2 != -1):
                     try:
                         t = board[i+self.l2][j]
-                        if (t.occupied == False or j < 0 or i+self.l2 < 0):
+                        if (j < 0 or i+self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED))
+                    except:
+                        pass
+                if (self.d2 != 1):
+                    try:
+                        t = board[i-self.l2][j]
+                        if (j < 0 or i-self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED))
+                    except:
+                        pass
+            elif (self.d1 == 1):
+                i += self.l1
+                if (self.d2 != -1):
+                    try:
+                        t = board[i][j + self.l2]
+                        if (i < 0 or j + self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+                if (self.d2 != 1):
+                    try:
+                        t = board[i][j - self.l2]
+                        if (i < 0 or j - self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+            elif (self.d1 == 2):
+                j += self.l1
+                if (self.d2 != -1):
+                    try:
+                        t = board[i - self.l2][j]
+                        if (j < 0 or i - self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+                if (self.d2 != 1):
+                    try:
+                        t = board[i + self.l2][j]
+                        if (j < 0 or i + self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+            else:
+                i -= self.l1
+                if (self.d2 != -1):
+                    try:
+                        t = board[i][j - self.l2]
+                        if (i < 0 or j - self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+                if (self.d2 != 1):
+                    try:
+                        t = board[i][j + self.l2]
+                        if (i < 0 or j + self.l2 < 0):
+                            pass
+                        elif (t.occupied == True):
+                            pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
+                                                          raylib.RED))
+                    except:
+                        pass
+
+    def step(self,i,j,board):
+        if (self.d1 == 0):
+            j -= self.l1
+            if (self.d2 != -1):
+                try:
+                    t = board[i + self.l2][j]
+                    if (j < 0 or i + self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i + self.l2][j] = t
+                except:
+                    pass
+            if (self.d2 != 1):
+                try:
+                    t = board[i - self.l2][j]
+                    if (j < 0 or i - self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i - self.l2][j] = t
+                except:
+                    pass
+        elif (self.d1 == 1):
+            i += self.l1
+            if (self.d2 != -1):
+                try:
+                    t = board[i][j + self.l2]
+                    if (i < 0 or j + self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j + self.l2] = t
+                except:
+                    pass
+            if (self.d2 != 1):
+                try:
+                    t = board[i][j - self.l2]
+                    if (i < 0 or j - self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j - self.l2] = t
+                except:
+                    pass
+        elif (self.d1 == 2):
+            j += self.l1
+            if (self.d2 != -1):
+                try:
+                    t = board[i - self.l2][j]
+                    if (j < 0 or i - self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i - self.l2][j] = t
+                except:
+                    pass
+            if (self.d2 != 1):
+                try:
+                    t = board[i + self.l2][j]
+                    if (j < 0 or i + self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i + self.l2][j] = t
+                except:
+                    pass
+        else:
+            i -= self.l1
+            if (self.d2 != -1):
+                try:
+                    t = board[i][j - self.l2]
+                    if (i < 0 or j - self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j - self.l2] = t
+                except:
+                    pass
+            if (self.d2 != 1):
+                try:
+                    t = board[i][j + self.l2]
+                    if (i < 0 or j + self.l2 < 0):
+                        pass
+                    elif (t.occupied == True):
+                        t.possible = True
+                        board[i][j + self.l2] = t
+                except:
+                    pass
+        return board
+
+class Free_Jump:
+    def __init__(self, dir1, dir2, len1, len2):
+        self.d1 = dir1
+        self.d2 = dir2
+        self.l1 = len1
+        self.l2 = len2
+
+    def draw(self, i, j, board):
+            if (self.d1 == 0):
+                j -= self.l1
+                if (self.d2 != -1):
+                    try:
+                        t = board[i+self.l2][j]
+                        if (t.occupied == True or j < 0 or i+self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.GRAY))
                     except:
                         pass
                 if (self.d2 != 1):
                     try:
                         t = board[i-self.l2][j]
-                        if (t.occupied == False or j < 0 or i-self.l2 < 0):
+                        if (t.occupied == True or j < 0 or i-self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.GRAY))
                     except:
                         pass
@@ -122,7 +435,9 @@ class Knight:
                 if (self.d2 != -1):
                     try:
                         t = board[i][j + self.l2]
-                        if (t.occupied == False or i < 0 or j + self.l2 < 0):
+                        if (t.occupied == True or i < 0 or j + self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -130,7 +445,9 @@ class Knight:
                 if (self.d2 != 1):
                     try:
                         t = board[i][j - self.l2]
-                        if (t.occupied == False or i < 0 or j - self.l2 < 0):
+                        if (t.occupied == True or i < 0 or j - self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -140,7 +457,9 @@ class Knight:
                 if (self.d2 != -1):
                     try:
                         t = board[i - self.l2][j]
-                        if (t.occupied == False or j < 0 or i - self.l2 < 0):
+                        if (t.occupied == True or j < 0 or i - self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -148,7 +467,9 @@ class Knight:
                 if (self.d2 != 1):
                     try:
                         t = board[i + self.l2][j]
-                        if (t.occupied == False or j < 0 or i + self.l2 < 0):
+                        if (t.occupied == True or j < 0 or i + self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -158,7 +479,9 @@ class Knight:
                 if (self.d2 != -1):
                     try:
                         t = board[i][j - self.l2]
-                        if (t.occupied == False or i < 0 or j - self.l2 < 0):
+                        if (t.occupied == True or i < 0 or j - self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -166,7 +489,9 @@ class Knight:
                 if (self.d2 != 1):
                     try:
                         t = board[i][j + self.l2]
-                        if (t.occupied == False or i < 0 or j + self.l2 < 0):
+                        if (t.occupied == True or i < 0 or j + self.l2 < 0):
+                            pass
+                        else:
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.GRAY))
                     except:
@@ -262,6 +587,34 @@ class Piece:
         for q in self.moves:
             board = q.step(i, j, board)
         return board
+
+class Quinn(Piece):
+    def __init__(self):
+        self.moves = [Line(1,1,0),Line(-1,-1,0),Line(-1,1,0),Line(1,-1,0),Line(-1,0,0),Line(0,-1,0),Line(0,1,0),Line(1,0,0)]
+
+class Knight(Piece):
+    def __init__(self):
+        self.moves = [Jump(0,0,2,1),Jump(1,0,2,1),Jump(2,0,2,1),Jump(3,0,2,1)]
+
+class Bishop(Piece):
+    def __init__(self):
+        self.moves = [Line(1,1,0),Line(-1,-1,0),Line(-1,1,0),Line(1,-1,0)]
+
+class Rook(Piece):
+    def __init__(self):
+        self.moves = [Line(-1,0,0),Line(0,-1,0),Line(0,1,0),Line(1,0,0)]
+
+class King(Piece):
+    def __init__(self):
+        self.moves = [Line(1,1,1),Line(-1,-1,1),Line(-1,1,1),Line(1,-1,1),Line(-1,0,1),Line(0,-1,1),Line(0,1,1),Line(1,0,1)]
+
+#need is_turned(turned - black; not turned - white)
+class Pawn(Piece):
+    def __init__(self,is_turned = False):
+        if (is_turned):
+            self.moves = [Capture_Line(-1, 1, 1), Capture_Line(1, 1, 1), Free_Line(0, 1, 1)]
+        else:
+            self.moves = [Capture_Line(1,-1,1),Capture_Line(-1,-1,1),Free_Line(0,-1,1)]
 
 class Tile:
     def __init__(self, coord, side, color):
