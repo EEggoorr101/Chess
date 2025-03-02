@@ -10,6 +10,13 @@ class Menu():
         self.game_b = Button([350, 800], 1500, 200, raylib.BLACK, 'Play the game', raylib.GRAY, raylib.WHITE, raylib.WHITE, raylib.WHITE, 100, raylib.BLACK)
         self.exit_b = Button([350, 1100], 1500, 200, raylib.BLACK, 'Exit the game', raylib.GRAY, raylib.WHITE, raylib.WHITE, raylib.WHITE, 100, raylib.BLACK)
 
+    def act(self):
+        pr.begin_drawing()
+        self.draw()
+        pr.end_drawing()
+        scene = self.step()
+        return scene
+
     def draw(self):
         pr.clear_background(raylib.BLACK)
         pr.draw_text(self.text, (2200-pr.measure_text(self.text,250))//2, 200, 250, raylib.WHITE)
@@ -25,8 +32,17 @@ class Menu():
 
 class Game():
     def __init__(self):
-        self.board = Board([50,50],1400,raylib.WHITE,raylib.BROWN)
+        self.board = Board([50,50],1400,raylib.WHITE,raylib.BROWN, 8)
         self.exit_b = Button([1550, 1100], 600, 200, raylib.BLACK, 'Menu', raylib.GRAY, raylib.WHITE, raylib.WHITE, raylib.WHITE, 100, raylib.BLACK)
+
+    def act(self):
+        self.board.turn_board()
+        pr.begin_drawing()
+        self.draw()
+        pr.end_drawing()
+        scene = self.step()
+        self.board.turn_board()
+        return scene
 
     def draw(self):
         pr.clear_background(raylib.BLACK)

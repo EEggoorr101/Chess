@@ -92,7 +92,6 @@ class Line:
                 break
         return board
 
-
 class Knight:
     #0,1,2,3 - directions (0 - up, else clockwise); 0-both, -1,1 only one(-1, left; 1, right); len1 - distance of jump, len2
     def __init__(self, dir1, dir2, len1, len2):
@@ -255,8 +254,14 @@ class Piece:
     def draw(self, x, y, l):
         pr.draw_rectangle(x,y,l,l,raylib.BLACK)
 
-    def step(self):
-        pass
+    def draw_pos(self,i,j,board):
+        for q in self.moves:
+            q.draw(i, j, board)
+
+    def step(self, i,j,board):
+        for q in self.moves:
+            board = q.step(i, j, board)
+        return board
 
 class Tile:
     def __init__(self, coord, side, color):
@@ -286,16 +291,17 @@ class Tile:
         return False
 
 class Board:
-    def __init__(self,coord,side,color1,color2):
+    def __init__(self,coord,side,color1,color2,num_len):
         self.coordinate = coord
-        self.l = side//8
+        self.num_len = num_len
+        self.l = side//self.num_len
         self.c1 = color1
         self.c2 = color2
         self.tiles = []
         self.chosen = False
-        for i in range(8):
+        for i in range(self.num_len):
             row = []
-            for j in range(8):
+            for j in range(self.num_len):
                 if ((i+j)%2==0):
                     row.append(Tile([self.coordinate[0]+i*self.l,self.coordinate[1]+j*self.l],self.l,self.c1))
                 else:
@@ -307,16 +313,24 @@ class Board:
             for y in x:
                 y.possible = False
 
+    def turn_board(self):
+        if (self.num_len % 2 == 1):
+            for i in range(self.num_len//2):
+                j = self.num_len//2
+                self.tiles[i][j].coordinates, self.tiles[self.num_len - 1 - i][self.num_len - 1 - j].coordinates = self.tiles[self.num_len - 1 - i][self.num_len - 1 - j].coordinates, self.tiles[i][j].coordinates
+        for i in range(self.num_len):
+            for j in range(self.num_len//2):
+                self.tiles[i][j].coordinates, self.tiles[self.num_len - 1 - i][self.num_len - 1 - j].coordinates = self.tiles[self.num_len - 1 - i][self.num_len - 1 - j].coordinates, self.tiles[i][j].coordinates
+
     def draw(self):
-        for i in range(8):
-            for j in range(8):
+        for i in range(self.num_len):
+            for j in range(self.num_len):
                 self.tiles[i][j].draw()
         if (self.chosen != False):
             pr.draw_rectangle(self.tiles[self.chosen[0]][self.chosen[1]].coordinates[0], self.tiles[self.chosen[0]][self.chosen[1]].coordinates[1], self.l, self.l, (255,255,0,100))
             tile = self.tiles[self.chosen[0]][self.chosen[1]]
             if (tile.occupied):
-                for q in tile.piece.moves:
-                    q.draw(self.chosen[0], self.chosen[1], self.tiles)
+                tile.piece.draw_pos(self.chosen[0], self.chosen[1], self.tiles)
 
     def step(self):
         event = pr.is_mouse_button_pressed(0)
@@ -324,17 +338,16 @@ class Board:
         if (self.chosen != False):
             tile = self.tiles[self.chosen[0]][self.chosen[1]]
             if (tile.occupied):
-                for q in tile.piece.moves:
-                    self.tiles = q.step(self.chosen[0], self.chosen[1], self.tiles)
-        for i in range(8):
-            for j in range(8):
+                tile.piece.step(self.chosen[0], self.chosen[1], self.tiles)
+        for i in range(self.num_len):
+            for j in range(self.num_len):
                 if (self.tiles[i][j].possible and self.tiles[i][j].step() and event):
                     self.tiles[i][j].occupied = True
                     self.tiles[self.chosen[0]][self.chosen[1]].occupied = False
                     self.tiles[i][j].piece = self.tiles[self.chosen[0]][self.chosen[1]].piece
         if (event):
             self.chosen = False
-        for i in range(8):
-            for j in range(8):
+        for i in range(self.num_len):
+            for j in range(self.num_len):
                 if (self.tiles[i][j].step() and event):
                     self.chosen = [i, j]

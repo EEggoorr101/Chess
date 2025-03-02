@@ -9,10 +9,7 @@ def application():
     scene = 'menu'
     while not pr.window_should_close():
         current = scenes_dict[scene]
-        pr.begin_drawing()
-        current.draw()
-        pr.end_drawing()
-        scene = current.step()
+        scene = current.act()
     pr.close_window()
 
 
