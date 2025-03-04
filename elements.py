@@ -635,6 +635,10 @@ class Tile:
             self.piece.draw(self.coordinates[0],self.coordinates[1],self.l)
         if (self.is_in()):
             pr.draw_rectangle(self.coordinates[0], self.coordinates[1], self.l, self.l, (0,0,0,70))
+        if (self.possible and self.occupied):
+            pr.draw_circle(self.coordinates[0] + self.l // 2, self.coordinates[1] + self.l // 2, 10, raylib.RED)
+        elif (self.possible):
+            pr.draw_circle(self.coordinates[0] + self.l // 2, self.coordinates[1] + self.l // 2, 10, raylib.GRAY)
 
     def step(self):
         if (self.is_in()):
@@ -682,8 +686,8 @@ class Board:
         if (self.chosen != False):
             pr.draw_rectangle(self.tiles[self.chosen[0]][self.chosen[1]].coordinates[0], self.tiles[self.chosen[0]][self.chosen[1]].coordinates[1], self.l, self.l, (255,255,0,100))
             tile = self.tiles[self.chosen[0]][self.chosen[1]]
-            if (tile.occupied):
-                tile.piece.draw_pos(self.chosen[0], self.chosen[1], self.tiles)
+            #if (tile.occupied):
+                #tile.piece.draw_pos(self.chosen[0], self.chosen[1], self.tiles)
 
     def step(self):
         event = pr.is_mouse_button_pressed(0)
@@ -698,6 +702,8 @@ class Board:
                     self.tiles[i][j].occupied = True
                     self.tiles[self.chosen[0]][self.chosen[1]].occupied = False
                     self.tiles[i][j].piece = self.tiles[self.chosen[0]][self.chosen[1]].piece
+                    self.chosen = False
+                    event = False
         if (event):
             self.chosen = False
         for i in range(self.num_len):

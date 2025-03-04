@@ -35,12 +35,17 @@ class Game():
         self.board = Board([50,50],1400,raylib.WHITE,raylib.BROWN, 8)
         self.exit_b = Button([1550, 1100], 600, 200, raylib.BLACK, 'Menu', raylib.GRAY, raylib.WHITE, raylib.WHITE, raylib.WHITE, 100, raylib.BLACK)
         self.players = []
+        self.board.tiles[0][0].occupied = True
+        self.board.tiles[0][0].piece = Quinn()
+        self.board.tiles[4][4].occupied = True
+        self.board.tiles[4][4].piece = Pawn(False)
+
 
     def act(self):
+        scene = self.step()
         pr.begin_drawing()
         self.draw()
         pr.end_drawing()
-        scene = self.step()
         return scene
 
     def draw(self):
