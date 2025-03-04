@@ -1,6 +1,6 @@
 import pyray as pr
 import raylib
-from raylib import *
+from images import *
 # chess piece - type of move (0 - line, 1 - knight), dir 1 (-1 - up, 0 - stay, 1 - down), dir 2 (-1 - left, 0 - stay, 1 - right), len - 0 - unlim, other that number
 
 class Button:
@@ -57,9 +57,9 @@ class Line:
         self.cl.draw(i, j, board)
         self.fl.draw(i, j, board)
 
-    def step(self,i,j, board):
-        board = self.cl.step(i, j, board)
-        board = self.fl.step(i, j, board)
+    def step(self,i,j, board, color):
+        board = self.cl.step(i, j, board, color)
+        board = self.fl.step(i, j, board, color)
         return board
 
 class Capture_Line:
@@ -100,7 +100,7 @@ class Capture_Line:
                 except:
                     break
 
-    def step(self, i, j, board):
+    def step(self, i, j, board, color):
         if (self.l == 0):
             while True:
                 i += self.d1
@@ -108,6 +108,8 @@ class Capture_Line:
                 try:
                     t = board[i][j]
                     if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True and color == t.piece.color):
                         break
                     elif (t.occupied == True):
                         t.possible = True
@@ -124,6 +126,8 @@ class Capture_Line:
                 try:
                     t = board[i][j]
                     if (i < 0 or j < 0):
+                        break
+                    elif (t.occupied == True and color == t.piece.color):
                         break
                     elif (t.occupied == True):
                         t.possible = True
@@ -167,7 +171,7 @@ class Free_Line:
                 except:
                     break
 
-    def step(self,i,j, board):
+    def step(self,i,j, board, color):
         if (self.l == 0):
             while True:
                 i += self.d1
@@ -211,9 +215,9 @@ class Jump:
         self.cj.draw(i, j, board)
         self.fj.draw(i, j, board)
 
-    def step(self, i, j, board):
-        board = self.cj.step(i, j, board)
-        board = self.fj.step(i, j, board)
+    def step(self, i, j, board, color):
+        board = self.cj.step(i, j, board, color)
+        board = self.fj.step(i, j, board, color)
         return board
 
 class Capture_Jump:
@@ -231,7 +235,7 @@ class Capture_Jump:
                         t = board[i+self.l2][j]
                         if (j < 0 or i+self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED))
                     except:
                         pass
@@ -240,7 +244,7 @@ class Capture_Jump:
                         t = board[i-self.l2][j]
                         if (j < 0 or i-self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10, raylib.RED))
                     except:
                         pass
@@ -251,7 +255,7 @@ class Capture_Jump:
                         t = board[i][j + self.l2]
                         if (i < 0 or j + self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
@@ -261,7 +265,7 @@ class Capture_Jump:
                         t = board[i][j - self.l2]
                         if (i < 0 or j - self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
@@ -273,7 +277,7 @@ class Capture_Jump:
                         t = board[i - self.l2][j]
                         if (j < 0 or i - self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
@@ -283,7 +287,7 @@ class Capture_Jump:
                         t = board[i + self.l2][j]
                         if (j < 0 or i + self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
@@ -295,7 +299,7 @@ class Capture_Jump:
                         t = board[i][j - self.l2]
                         if (i < 0 or j - self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
@@ -305,13 +309,13 @@ class Capture_Jump:
                         t = board[i][j + self.l2]
                         if (i < 0 or j + self.l2 < 0):
                             pass
-                        elif (t.occupied == True):
+                        elif (t.occupied == True and color != t.piece.color):
                             pr.draw_circle(pr.draw_circle(t.coordinates[0] + t.l // 2, t.coordinates[1] + t.l // 2, 10,
                                                           raylib.RED))
                     except:
                         pass
 
-    def step(self,i,j,board):
+    def step(self,i,j,board,color):
         if (self.d1 == 0):
             j -= self.l1
             if (self.d2 != -1):
@@ -319,7 +323,7 @@ class Capture_Jump:
                     t = board[i + self.l2][j]
                     if (j < 0 or i + self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i + self.l2][j] = t
                 except:
@@ -329,7 +333,7 @@ class Capture_Jump:
                     t = board[i - self.l2][j]
                     if (j < 0 or i - self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i - self.l2][j] = t
                 except:
@@ -341,7 +345,7 @@ class Capture_Jump:
                     t = board[i][j + self.l2]
                     if (i < 0 or j + self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i][j + self.l2] = t
                 except:
@@ -351,7 +355,7 @@ class Capture_Jump:
                     t = board[i][j - self.l2]
                     if (i < 0 or j - self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i][j - self.l2] = t
                 except:
@@ -363,7 +367,7 @@ class Capture_Jump:
                     t = board[i - self.l2][j]
                     if (j < 0 or i - self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i - self.l2][j] = t
                 except:
@@ -373,7 +377,7 @@ class Capture_Jump:
                     t = board[i + self.l2][j]
                     if (j < 0 or i + self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i + self.l2][j] = t
                 except:
@@ -385,7 +389,7 @@ class Capture_Jump:
                     t = board[i][j - self.l2]
                     if (i < 0 or j - self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i][j - self.l2] = t
                 except:
@@ -395,7 +399,7 @@ class Capture_Jump:
                     t = board[i][j + self.l2]
                     if (i < 0 or j + self.l2 < 0):
                         pass
-                    elif (t.occupied == True):
+                    elif (t.occupied == True and color != t.piece.color):
                         t.possible = True
                         board[i][j + self.l2] = t
                 except:
@@ -497,7 +501,7 @@ class Free_Jump:
                     except:
                         pass
 
-    def step(self,i,j,board):
+    def step(self,i,j,board,color):
         if (self.d1 == 0):
             j -= self.l1
             if (self.d2 != -1):
@@ -573,11 +577,19 @@ class Free_Jump:
         return board
 
 class Piece:
-    def __init__(self, moves):
+    def __init__(self, moves, PNG, l, color):
+        self.color = color
         self.moves = moves
+        self.PNG = pr.load_image(PNG)
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(0, 0, l, l)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
-    def draw(self, x, y, l):
-        pr.draw_rectangle(x,y,l,l,raylib.BLACK)
+    def draw(self, x, y):
+        pr.draw_texture(self.texture, x, y, raylib.WHITE)
 
     def draw_pos(self,i,j,board):
         for q in self.moves:
@@ -585,36 +597,102 @@ class Piece:
 
     def step(self, i,j,board):
         for q in self.moves:
-            board = q.step(i, j, board)
+            board = q.step(i, j, board, self.color)
         return board
 
 class Quinn(Piece):
-    def __init__(self):
+    def __init__(self, color,l):
+        self.color = color
         self.moves = [Line(1,1,0),Line(-1,-1,0),Line(-1,1,0),Line(1,-1,0),Line(-1,0,0),Line(0,-1,0),Line(0,1,0),Line(1,0,0)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WQ.png')
+        else:
+            self.PNG = pr.load_image('images/BQ.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 class Knight(Piece):
-    def __init__(self):
+    def __init__(self, color,l):
+        self.color = color
         self.moves = [Jump(0,0,2,1),Jump(1,0,2,1),Jump(2,0,2,1),Jump(3,0,2,1)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WKn.png')
+        else:
+            self.PNG = pr.load_image('images/BKn.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 class Bishop(Piece):
-    def __init__(self):
+    def __init__(self, color,l):
+        self.color = color
         self.moves = [Line(1,1,0),Line(-1,-1,0),Line(-1,1,0),Line(1,-1,0)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WB.png')
+        else:
+            self.PNG = pr.load_image('images/BB.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 class Rook(Piece):
-    def __init__(self):
+    def __init__(self,color,l):
+        self.color = color
         self.moves = [Line(-1,0,0),Line(0,-1,0),Line(0,1,0),Line(1,0,0)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WR.png')
+        else:
+            self.PNG = pr.load_image('images/BR.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 class King(Piece):
-    def __init__(self):
+    def __init__(self, color,l):
+        self.color = color
         self.moves = [Line(1,1,1),Line(-1,-1,1),Line(-1,1,1),Line(1,-1,1),Line(-1,0,1),Line(0,-1,1),Line(0,1,1),Line(1,0,1)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WK.png')
+        else:
+            self.PNG = pr.load_image('images/BK.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 #need is_turned(turned - black; not turned - white)
 class Pawn(Piece):
-    def __init__(self,is_turned = False):
+    def __init__(self, color, l, is_turned = False):
+        self.color = color
         if (is_turned):
             self.moves = [Capture_Line(-1, 1, 1), Capture_Line(1, 1, 1), Free_Line(0, 1, 1)]
         else:
             self.moves = [Capture_Line(1,-1,1),Capture_Line(-1,-1,1),Free_Line(0,-1,1)]
+        if (color == 0):
+            self.PNG = pr.load_image('images/WP.png')
+        else:
+            self.PNG = pr.load_image('images/BP.png')
+        src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
+        dst_rect = pr.Rectangle(15, 15, l - 30, l - 30)
+        background = pr.gen_image_color(l, l, (255, 255, 255, 0))
+        pr.image_draw(background, self.PNG, src_rect, dst_rect, pr.WHITE)
+        self.texture = pr.load_texture_from_image(background)
+        pr.unload_image(background)
 
 class Tile:
     def __init__(self, coord, side, color):
@@ -632,7 +710,7 @@ class Tile:
     def draw(self):
         pr.draw_rectangle(self.coordinates[0], self.coordinates[1], self.l, self.l, self.c)
         if (self.occupied):
-            self.piece.draw(self.coordinates[0],self.coordinates[1],self.l)
+            self.piece.draw(self.coordinates[0],self.coordinates[1])
         if (self.is_in()):
             pr.draw_rectangle(self.coordinates[0], self.coordinates[1], self.l, self.l, (0,0,0,70))
         if (self.possible and self.occupied):
