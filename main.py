@@ -1,16 +1,19 @@
-import raylib
 import scenes
 import pyray as pr
+from screeninfo import get_monitors
 
 def application():
     pr.set_target_fps(60)
-    pr.init_window(2200, 1500, "Chess")
+    monitor = get_monitors()[0]
+    print(monitor)
+    pr.init_window(monitor.width, monitor.height, "Chess")
     scenes_dict = {'menu': scenes.Menu(), 'game': scenes.Game()}
     scene = 'menu'
     while not pr.window_should_close():
         current = scenes_dict[scene]
         scene = current.act()
     pr.close_window()
+    return 0
 
 
 if __name__=='__main__':
