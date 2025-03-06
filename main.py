@@ -8,6 +8,7 @@ def application():
     print(monitor)
     pr.init_window(monitor.width, monitor.height, "Chess")
     scenes_dict = {'menu': scenes.Menu(), 'game': scenes.Game()}
+    scenes_dict['game'].new_game()
     scene = 'menu'
     while not pr.window_should_close():
         current = scenes_dict[scene]

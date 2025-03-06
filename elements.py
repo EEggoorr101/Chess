@@ -3,7 +3,8 @@ import raylib
 # chess piece - type of move (0 - line, 1 - knight), dir 1 (-1 - up, 0 - stay, 1 - down), dir 2 (-1 - left, 0 - stay, 1 - right), len - 0 - unlim, other that number
 
 class Player:
-    def __init__(self, turned, faction):
+    def __init__(self, turned, faction, nick):
+        self.nick = nick
         self.turned = turned
         self.f = faction
 
@@ -83,6 +84,7 @@ class Tile:
 class Board:
     def __init__(self,coord,side,color1,color2,num_len):
         self.moved = False
+        self.is_over = False
         self.coordinate = coord
         self.num_len = num_len
         self.l = side//self.num_len
@@ -148,6 +150,9 @@ class Board:
         for i in range(self.num_len):
             for j in range(self.num_len):
                 if (self.tiles[i][j].possible and self.tiles[i][j].step() and event and self.tiles[self.chosen[0]][self.chosen[1]].piece.player == player):
+                    if (self.tiles[i][j].occupied and self.tiles[i][j].piece.important):
+                        self.is_over = True
+                        self.winner = player.nick
                     self.tiles[i][j].occupied = True
                     self.tiles[self.chosen[0]][self.chosen[1]].occupied = False
                     self.tiles[i][j].piece = self.tiles[self.chosen[0]][self.chosen[1]].piece
@@ -160,3 +165,4 @@ class Board:
             for j in range(self.num_len):
                 if (self.tiles[i][j].step() and event):
                     self.chosen = [i, j]
+        return self.is_over
