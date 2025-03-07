@@ -1,5 +1,4 @@
 from elements import *
-from pieces import *
 from screeninfo import get_monitors
 #button - coordinates, width, heigh, main color, text, color when hovered, color when clicked, boarder color, text color, font, text color when clicked
 
@@ -35,47 +34,6 @@ class Menu():
         return 'menu'
 
 class Game():
-
-    def generate_standart_board(self):
-        self.board.tiles[0][0].occupied = True
-        self.board.tiles[0][0].piece = Rook(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[1][0].occupied = True
-        self.board.tiles[1][0].piece = Knight(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[2][0].occupied = True
-        self.board.tiles[2][0].piece = Bishop(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[3][0].occupied = True
-        self.board.tiles[3][0].piece = Quinn(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[4][0].occupied = True
-        self.board.tiles[4][0].piece = King(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[5][0].occupied = True
-        self.board.tiles[5][0].piece = Bishop(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[6][0].occupied = True
-        self.board.tiles[6][0].piece = Knight(1, self.board.tiles[0][0].l, self.players[1])
-        self.board.tiles[7][0].occupied = True
-        self.board.tiles[7][0].piece = Rook(1, self.board.tiles[0][0].l, self.players[1])
-        for i in range(self.board.num_len):
-            self.board.tiles[i][1].occupied = True
-            self.board.tiles[i][1].piece = Pawn(1, self.board.tiles[0][0].l, self.players[1], True)
-        self.board.tiles[0][7].occupied = True
-        self.board.tiles[0][7].piece = Rook(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[1][7].occupied = True
-        self.board.tiles[1][7].piece = Knight(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[2][7].occupied = True
-        self.board.tiles[2][7].piece = Bishop(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[3][7].occupied = True
-        self.board.tiles[3][7].piece = Quinn(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[4][7].occupied = True
-        self.board.tiles[4][7].piece = King(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[5][7].occupied = True
-        self.board.tiles[5][7].piece = Bishop(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[6][7].occupied = True
-        self.board.tiles[6][7].piece = Knight(0, self.board.tiles[0][0].l, self.players[0])
-        self.board.tiles[7][7].occupied = True
-        self.board.tiles[7][7].piece = Rook(0, self.board.tiles[0][0].l, self.players[0])
-        for i in range(self.board.num_len):
-            self.board.tiles[i][6].occupied = True
-            self.board.tiles[i][6].piece = Pawn(0, self.board.tiles[0][0].l, self.players[0])
-
     def __init__(self):
         monitor = get_monitors()[0]
         self.w = monitor.width
@@ -85,8 +43,7 @@ class Game():
         self.turn = 0
 
     def new_game(self):
-        self.board = Board([self.h//20,self.h//20],self.h//10*9,raylib.WHITE,raylib.BROWN, 8)
-        self.generate_standart_board()
+        self.board = ChessBoard([self.h//20,self.h//20],self.h//10*9, self.players, [self.h//20 + self.h, self.h//20], self.h//10*9, self.h//10*4)
 
     def act(self):
         if (self.board.is_over):
@@ -116,7 +73,8 @@ class Game():
         self.exit_b.draw()
 
     def step(self):
-        event = self.board.step(self.players[self.turn%2])
+        self.board.step(self.players[self.turn%2])
+        event = self.board.is_over
         if (self.exit_b.step()):
             return 'menu'
         if (event):

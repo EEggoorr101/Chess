@@ -1,5 +1,45 @@
 import pyray as pr
 import raylib
+from elements import *
+
+class Castle:
+    #eligibility is 0-to move,1-to swap,2-for king
+    def __init__(self):
+        pass
+
+    def drop(self, i, j, board, player):
+        pass
+
+    def step(self, i, j, board, player):
+        x = 0
+
+        while True:
+            try:
+                if (board[x][j].occupied and 0 in board[x][j].piece.elig and board[x][j].piece.player.f == player.f):
+                    if (x < i):
+                        check = True
+                        for y in range(x+1,i):
+                            if (board[y][j].occupied):
+                                check = False
+                                break
+                        if check:
+                            board[i-2][j].possible = True
+                            if (not 1 in board[i][j].piece.elig):
+                                board[i][j].piece.elig.append(1)
+                    else:
+                        check = True
+                        for y in range(i + 1, x):
+                            if (board[y][j].occupied):
+                                check = False
+                                break
+                        if check:
+                            board[i + 2][j].possible = True
+                            if (not 1 in board[i][j].piece.elig):
+                                board[i][j].piece.elig.append(1)
+                x += 1
+            except:
+                break
+        return board
 
 class Line:
     def __init__(self, dir1, dir2, len):
@@ -508,11 +548,13 @@ class Free_Jump:
         return board
 
 class Piece:
-    def __init__(self, moves, PNG, l, color, is_important, player):
+    #eligibility - array of numbers to indicate which wariants of moves of other pieces are possible
+    def __init__(self, moves, PNG, l, color, is_important, player, eligibility):
         self.player = player
         self.important = is_important
         self.color = color
         self.moves = moves
+        self.elig = eligibility
         self.PNG = pr.load_image(PNG)
         src_rect = pr.Rectangle(0, 0, self.PNG.width, self.PNG.height)
         dst_rect = pr.Rectangle(0, 0, l, l)
@@ -535,6 +577,7 @@ class Piece:
 
 class Quinn(Piece):
     def __init__(self, color,l, player):
+        self.elig = []
         self.player = player
         self.important = False
         self.color = color
@@ -552,6 +595,7 @@ class Quinn(Piece):
 
 class Knight(Piece):
     def __init__(self, color,l, player):
+        self.elig = []
         self.player = player
         self.important = False
         self.color = color
@@ -569,6 +613,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
     def __init__(self, color,l, player):
+        self.elig = []
         self.player = player
         self.important = False
         self.color = color
@@ -586,6 +631,7 @@ class Bishop(Piece):
 
 class Rook(Piece):
     def __init__(self,color,l, player):
+        self.elig = [0]
         self.player = player
         self.important = False
         self.color = color
@@ -603,10 +649,11 @@ class Rook(Piece):
 
 class King(Piece):
     def __init__(self, color,l, player):
+        self.elig = [2]
         self.player = player
         self.important = True
         self.color = color
-        self.moves = [Line(1,1,1),Line(-1,-1,1),Line(-1,1,1),Line(1,-1,1),Line(-1,0,1),Line(0,-1,1),Line(0,1,1),Line(1,0,1)]
+        self.moves = [Line(1,1,1),Line(-1,-1,1),Line(-1,1,1),Line(1,-1,1),Line(-1,0,1),Line(0,-1,1),Line(0,1,1),Line(1,0,1),Castle()]
         if (color == 0):
             self.PNG = pr.load_image('images/WK.png')
         else:
@@ -621,9 +668,12 @@ class King(Piece):
 #need is_turned(turned - black; not turned - white)
 class Pawn(Piece):
     def __init__(self, color, l, player, is_turned = False):
+        #3-promotion elig
+        self.elig = [3]
         self.player = player
         self.important = False
         self.color = color
+        self.is_turned = is_turned
         if (is_turned):
             self.moves = [Capture_Line(-1, 1, 1), Capture_Line(1, 1, 1), Free_Line(0, 1, 1)]
         else:
@@ -640,10 +690,10 @@ class Pawn(Piece):
         pr.unload_image(background)
 
     def step(self, i, j, board):
-        if (self.color == 0 and j == 6 or self.color == 1 and j == 1):
+        if (not self.is_turned and j == 6 or self.is_turned and j == 1):
             self.moves[2].l = 2
         for q in self.moves:
             board = q.step(i, j, board, self.player)
-        if (self.color == 0 and j == 6 or self.color == 1 and j == 1):
+        if (not self.is_turned and j == 6 or self.is_turned and j == 1):
             self.moves[2].l = 1
         return board
